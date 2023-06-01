@@ -36,7 +36,7 @@ for i, sentence in enumerate(sentences):
     y[i, char_to_index[next_characters[i]]] = 1  
 
 '''
-model = tf.keras.models.load_model('textgernerator.model')
+model = tf.keras.models.load_model('textgenerator.model')
 
 def sample(preds, temperature = 1.0):
     preds = np.asarray(preds).astype('float64')
@@ -63,3 +63,9 @@ def generate_text(length, temperature):
         generated += next_character
         sentence = sentence[1:] + next_character
     return generated
+
+
+print("---------0.4---------")
+print(generate_text(300, 0.4))
+print("---------0.6---------")
+print(generate_text(300, 0.6))
