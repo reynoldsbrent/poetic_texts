@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import LSTM, Dense, Activation
-from tensorflow.keras.optimizer import RMSprop
+from tensorflow.python.keras.optimizers import rmsprop_v2
 
 filepath = tf.keras.utils.get_file('shakespeare.txt', 'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')
 
@@ -39,6 +39,8 @@ model.add(LSTM(128, input_shape = (SEQ_LENGTH, len(characters))))
 model.add(Dense(len(characters)))
 model.add(Activation('softmax'))
 
-model.compile(loss = 'categorical crossentropy', optimizer = RMSprop(lr=0.01))
+model.compile(loss = 'binary_crossentropy', optimizer = 'rmsprop')
 
 model.fit(x, y, batch_size = 256, epochs = 4)
+
+model.save('textgenerator.model')
