@@ -19,6 +19,7 @@ index_to_char = dict((i, c) for i, c in enumerate(characters))
 SEQ_LENGTH = 40
 STEP_SIZE = 3
 
+'''
 sentences = []
 next_characters = []
 
@@ -32,15 +33,33 @@ y = np.zeros((len(sentences), len(characters)), dtype = np.bool)
 for i, sentence in enumerate(sentences):
     for t, character in enumerate(sentence):
         x[i, t, char_to_index[character]] = 1
-    y[i, char_to_index[next_characters[i]]] = 1    
+    y[i, char_to_index[next_characters[i]]] = 1  
 
-model = Sequential()
-model.add(LSTM(128, input_shape = (SEQ_LENGTH, len(characters))))
-model.add(Dense(len(characters)))
-model.add(Activation('softmax'))
+'''
+model = tf.keras.models.load_model('textgernerator.model')
 
-model.compile(loss = 'binary_crossentropy', optimizer = 'rmsprop')
+def sample(preds, temperature = 1.0):
+    preds = np.asarray(preds).astype('float64')
+    preds = np.log(preds) / temperature
+    exp_preds = np.exp(preds)
+    preds = exp_preds / np.sum(exp_preds)
+    probas = np.random.multinomial(1, preds, 1)
+    return np.argmax(probas)
 
-model.fit(x, y, batch_size = 256, epochs = 4)
+def generate_text(length, temperature):
+    start_index = random.randint(0, len(text) - SEQ_LENGTH - 1)
+    generated = ''
+    sentence = text[start_index: start_index + SEQ_LENGTH]
+    generated += sentence
+    for i in range(length):
+        x = np.zeros((1, SEQ_LENGTH, len(characters)))
+        for t, character in enumerate(sentence):
+            x[0, t, char_to_index[character]] = 1
+            
+        predictions = model.predict(x, verbose = 0)[0]
+        next_index = sample(predictions, temperature)
+        next_character = index_to_char[next_index]
 
-model.save('textgenerator.model')
+        generated += next_character
+        sentence = sentence[1:] + next_character
+    return generated
